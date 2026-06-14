@@ -1,15 +1,13 @@
 <!DOCTYPE HTML>
-<html>
-
+<html lang="pt-BR">
 <head>
-	<title>Contact - Alpha by HTML5 UP</title>
+	<title>Fazer Pedido | La Carne</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<link rel="stylesheet" href="meucss/other.css">
 	<link rel="stylesheet" href="assets/css/main.css" />
-	<link rel="icon" type="image/icon" href="Fotos/favicon.ico">
+	<link rel="stylesheet" href="meucss/other.css">
 	<link rel="stylesheet" href="assets/css/lacarne-theme.css">
-
+	<link rel="icon" type="image/icon" href="Fotos/favicon.ico">
 </head>
 
 <body class="is-preload">
@@ -18,135 +16,114 @@
 		<!-- Header -->
 		<header id="header">
 			<h1><a href="index.html">La Carne</a></h1>
+
 			<nav id="nav">
 				<ul>
 					<li><a href="index.html">Home</a></li>
 					<li>
-						<a href="#" class="icon solid fa-angle-down">Opçoes</a>
+						<a href="#" class="icon solid fa-angle-down">Menu</a>
 						<ul>
-							<li><a href="cardapio.html">Cardapio</a></li>
-							<li><a href="informacoes.html">Informaçoes</a></li>
-							<li><a href="galeria.html">Galeria</a>
+							<li><a href="cardapio.html">Cardápio</a></li>
+							<li><a href="formulario.html">Fazer Pedido</a></li>
+							<li><a href="informacoes.html">Informações</a></li>
+							<li><a href="galeria.html">Galeria</a></li>
 							<li><a href="admin.html">Admin</a></li>
-
 						</ul>
 					</li>
-					<li><a href="formulario.html" class="button">Pedir</a></li>
+					<li><a href="formulario.html" class="button">Pedir Agora</a></li>
 				</ul>
 			</nav>
 		</header>
 
-		<!-- Main -->
+		<!-- Formulário de pedido -->
 		<section id="main" class="container medium">
 			<header>
 				<div class="box">
-					<h2>Realizar Pedido</h2>
-					<p>Para fazer seu pedido, apenas preencha abaixo:</p>
+					<h2>Fazer Pedido</h2>
+
+					<p>
+						Preencha seus dados, escolha os itens do pedido e aplique um cupom
+						caso tenha participado do Jogo da Sorte.
+					</p>
+
 					<div id="mensagem" class="mensagem" onclick="redirecionar()">
-						<h1>Para o seu primeiro pedido ser ainda melhor, jogue nossa roleta da sorte e ganhe até 30% de
-							desconto!</h1>
+						<h1>Jogue o Jogo da Sorte e ganhe até 30% de desconto!</h1>
 					</div>
 				</div>
-				<!-- Mensagem de promoções -->
-
 			</header>
+
 			<div class="box">
 				<form id="pedidoForm" method="post" action="#">
 					<div class="row gtr-50 gtr-uniform">
+
 						<div class="col-6 col-12-mobilep">
-							<input type="text" name="name" id="name" value="" placeholder="Name" />
+							<input type="text" name="name" id="name" placeholder="Nome" />
 						</div>
+
 						<div class="col-6 col-12-mobilep">
-							<input type="text" name="Telefone" id="telefone" value="" placeholder="Telefone" />
+							<input type="text" name="telefone" id="telefone" placeholder="Telefone" />
 						</div>
+
 						<div class="col-12">
-							<input type="email" name="email" id="email" value="" placeholder="Email" />
+							<input type="email" name="email" id="email" placeholder="Email" />
 						</div>
+
 						<div class="col-12">
 							<div id="pedidoContainer">
 								<div class="pedido-item">
 									<select name="pedido" class="pedido-dropdown">
 										<option value="">Selecione um pedido</option>
-										<option value="Mega Stacker Atômico">Mega Stacker Atômico R$ 50</option>
-										<option value="Triplo Cheedar">Triplo Cheedar R$ 40</option>
-										<option value="Whopper">Whopper R$ 30</option>
-										<option value="Big King">Big King R$ 25</option>
+										<option value="La Carne Atômico">La Carne Atômico - R$ 50</option>
+										<option value="Triplo Cheddar">Triplo Cheddar - R$ 40</option>
+										<option value="Clássico Angus">Clássico Angus - R$ 30</option>
+										<option value="Duplo da Casa">Duplo da Casa - R$ 25</option>
 									</select>
+
 									<button type="button" onclick="adicionarPedido()">+</button>
 								</div>
 							</div>
 						</div>
+
 						<div class="col-6 col-12-mobilep">
-							<input type="text" name="observacao" id="observacao" value=""
-								placeholder="Observação e Preferencias" />
+							<input type="text" name="observacao" id="observacao" placeholder="Observações ou preferências" />
 						</div>
+
 						<div class="col-6 col-12-mobilep">
-							<input type="text" name="desconto" id="desconto" value=""
-								placeholder="Código de Desconto" />
+							<input type="text" name="desconto" id="desconto" placeholder="Código de desconto" />
 						</div>
 
 						<div class="col-12">
 							<ul class="actions special">
-								<li><input type="submit" value="Enviar" /></li>
+								<li><input type="submit" value="Enviar Pedido" /></li>
 							</ul>
 						</div>
 					</div>
 				</form>
+
+				<!-- Resumo exibido após envio -->
 				<div class="output" id="output" style="display: none;">
-					<h3>Informações do Pedido:</h3>
+					<h3>Resumo do Pedido</h3>
+
 					<p><strong>Nome:</strong> <span id="outputNome"></span></p>
 					<p><strong>Telefone:</strong> <span id="outputTelefone"></span></p>
 					<p><strong>Email:</strong> <span id="outputEmail"></span></p>
 					<p><strong>Pedido:</strong> <span id="outputPedido"></span></p>
 					<p><strong>Preferência:</strong> <span id="outputPreferencia"></span></p>
 					<p><strong>Desconto Aplicado:</strong> <span id="outputDesconto"></span></p>
-					<p><strong>Valor Final:</strong> R$ <span id="outputValorFinal"></span></p>
+					<p><strong>Valor Final:</strong> <span id="outputValorFinal"></span></p>
 				</div>
 			</div>
-			<div class="box"><!-- Botão para carregar os pedidos -->
-				<button id="carregarPedidos" type="button" class="carregar">Carregar Pedidos</button>
-
-				<!-- Tabela para exibir os pedidos -->
-				<table id="tabelaPedidos" border="1" style="margin-top: 20px; display: none;">
-					<thead>
-						<tr>
-							<th>ID</th>
-							<th>Nome</th>
-							<th>Telefone</th>
-							<th>Email</th>
-							<th>Pedidos</th>
-							<th>Observação</th>
-							<th>Desconto</th>
-							<th>Valor Final</th>
-							<th>Ações</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
-			</div>
-
-
 		</section>
 
-
-
-		<!-- Footer -->
 		<footer id="footer">
-			<ul class="icons">
-				<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-				<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
-				<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-				<li><a href="#" class="icon brands fa-github"><span class="label">Github</span></a></li>
-				<li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
-				<li><a href="#" class="icon brands fa-google-plus"><span class="label">Google+</span></a></li>
-			</ul>
 			<ul class="copyright">
-				<li>&copy; All rights reserved.</li>
-				<li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				<li>&copy; La Carne. Projeto acadêmico refatorado.</li>
+				<li>Desenvolvido por Ryan Santos</li>
 			</ul>
 		</footer>
 
 	</div>
+
 	<script src="assets/js/jquery.min.js"></script>
 	<script src="assets/js/jquery.dropotron.min.js"></script>
 	<script src="assets/js/jquery.scrollex.min.js"></script>
@@ -154,8 +131,7 @@
 	<script src="assets/js/breakpoints.min.js"></script>
 	<script src="assets/js/util.js"></script>
 	<script src="assets/js/main.js"></script>
-	<script src="JS/Script.js"></script>
+	<script src="JS/Script.js?v=2"></script>
 
 </body>
-
 </html>
