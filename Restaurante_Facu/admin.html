@@ -1,0 +1,222 @@
+<!DOCTYPE HTML>
+<html lang="pt-BR">
+<head>
+	<title>Admin - La Carne</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<link rel="icon" type="image/icon" href="Fotos/favicon.ico">
+    <link rel="stylesheet" href="assets/css/lacarne-theme.css">
+
+	<style>
+		.admin-header {
+			text-align: center;
+			margin-bottom: 2rem;
+		}
+
+		.admin-actions {
+			display: flex;
+			justify-content: center;
+			gap: 1rem;
+			margin-bottom: 2rem;
+			flex-wrap: wrap;
+		}
+
+		.pedido-card {
+			border: 1px solid #ddd;
+			border-radius: 10px;
+			padding: 1.5rem;
+			margin-bottom: 1.2rem;
+			background: #fff;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+		}
+
+		.pedido-topo {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 1rem;
+			flex-wrap: wrap;
+			margin-bottom: 1rem;
+		}
+
+		.pedido-id {
+			font-weight: bold;
+			color: #e89980;
+		}
+
+		.pedido-info {
+			margin: 0.3rem 0;
+		}
+
+		.pedido-total {
+			font-size: 1.1rem;
+			font-weight: bold;
+			color: #333;
+			margin-top: 1rem;
+		}
+
+		.btn-danger {
+			background: #b91c1c !important;
+			color: #fff !important;
+			border: none;
+		}
+
+		.btn-danger:hover {
+			background: #991b1b !important;
+		}
+
+		.empty-state {
+			text-align: center;
+			padding: 2rem;
+			background: #fff;
+			border-radius: 10px;
+		}
+	</style>
+</head>
+
+<body class="is-preload">
+	<div id="page-wrapper">
+
+		<header id="header">
+			<h1><a href="index.html">La Carne</a></h1>
+			<nav id="nav">
+				<ul>
+					<li><a href="index.html">Home</a></li>
+					<li>
+						<a href="#" class="icon solid fa-angle-down">Opções</a>
+						<ul>
+							<li><a href="cardapio.html">Cardápio</a></li>
+							<li><a href="formulario.html">Pedir</a></li>
+							<li><a href="informacoes.html">Informações</a></li>
+							<li><a href="galeria.html">Galeria</a></li>
+							<li><a href="admin.html">Admin</a></li>
+						</ul>
+					</li>
+					<li><a href="formulario.html" class="button">Pedir</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<section id="main" class="container">
+			<header class="admin-header">
+				<div class="box">
+					<h2>Painel Administrativo</h2>
+					<p>Visualize e gerencie os pedidos recebidos pelo site.</p>
+				</div>
+			</header>
+
+			<div class="box">
+				<div class="admin-actions">
+					<button class="button primary" onclick="carregarPedidos()">Atualizar pedidos</button>
+					<a href="formulario.html" class="button">Fazer pedido teste</a>
+				</div>
+
+				<div id="pedidosContainer">
+					<p>Carregando pedidos...</p>
+				</div>
+			</div>
+		</section>
+
+		<footer id="footer">
+			<ul class="copyright">
+				<li>&copy; La Carne. Projeto acadêmico.</li>
+				<li>Desenvolvido por Ryan Santos</li>
+			</ul>
+		</footer>
+	</div>
+
+	<script>
+		function formatarMoeda(valor) {
+			return Number(valor || 0).toLocaleString("pt-BR", {
+				style: "currency",
+				currency: "BRL"
+			});
+		}
+
+		async function carregarPedidos() {
+			const container = document.getElementById("pedidosContainer");
+			container.innerHTML = "<p>Carregando pedidos...</p>";
+
+			try {
+				const response = await fetch("php/carregar_pedidos.php");
+				const data = await response.json();
+
+				if (!data.success) {
+					container.innerHTML = `<p>Erro ao carregar pedidos.</p>`;
+					return;
+				}
+
+				if (data.pedidos.length === 0) {
+					container.innerHTML = `
+						<div class="empty-state">
+							<h3>Nenhum pedido encontrado</h3>
+							<p>Quando um cliente fizer um pedido, ele aparecerá aqui.</p>
+						</div>
+					`;
+					return;
+				}
+
+				container.innerHTML = data.pedidos.map(pedido => `
+					<div class="pedido-card">
+						<div class="pedido-topo">
+							<h3 class="pedido-id">Pedido #${pedido.id}</h3>
+							<button class="button small btn-danger" onclick="deletarPedido(${pedido.id})">
+								Deletar
+							</button>
+						</div>
+
+						<p class="pedido-info"><strong>Cliente:</strong> ${pedido.nome}</p>
+						<p class="pedido-info"><strong>Telefone:</strong> ${pedido.telefone}</p>
+						<p class="pedido-info"><strong>Email:</strong> ${pedido.email}</p>
+						<p class="pedido-info"><strong>Pedido:</strong> ${pedido.pedidos || "Não informado"}</p>
+						<p class="pedido-info"><strong>Observação:</strong> ${pedido.observacao || "Nenhuma"}</p>
+						<p class="pedido-info"><strong>Desconto:</strong> ${formatarMoeda(pedido.desconto)}</p>
+
+						<p class="pedido-total">
+							Total: ${formatarMoeda(pedido.valor_final)}
+						</p>
+					</div>
+				`).join("");
+
+			} catch (error) {
+				console.error(error);
+				container.innerHTML = `<p>Erro ao conectar com o servidor.</p>`;
+			}
+		}
+
+		async function deletarPedido(id) {
+			const confirmar = confirm(`Deseja deletar o pedido #${id}?`);
+
+			if (!confirmar) {
+				return;
+			}
+
+			try {
+				const response = await fetch(`php/deletar_pedidos.php?id=${id}`);
+				const data = await response.json();
+
+				if (data.success) {
+					alert("Pedido deletado com sucesso!");
+					carregarPedidos();
+				} else {
+					alert(data.message || "Erro ao deletar pedido.");
+				}
+			} catch (error) {
+				console.error(error);
+				alert("Erro ao deletar pedido.");
+			}
+		}
+
+		carregarPedidos();
+	</script>
+
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/jquery.dropotron.min.js"></script>
+	<script src="assets/js/jquery.scrollex.min.js"></script>
+	<script src="assets/js/browser.min.js"></script>
+	<script src="assets/js/breakpoints.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<script src="assets/js/main.js"></script>
+</body>
+</html>
