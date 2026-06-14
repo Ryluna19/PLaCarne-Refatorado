@@ -352,3 +352,71 @@ select option {
 .galeria-card p {
 	min-height: 4.5rem;
 }
+
+/* Layout do formulário de pedido */
+
+.pedido-item {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+}
+
+.pedido-item select {
+	flex: 1;
+	margin-bottom: 0;
+}
+
+.pedido-item button {
+	min-width: 42px;
+	height: 42px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.1rem;
+	line-height: 1;
+}
+
+/* Caixa promocional do Jogo da Sorte */
+
+.mensagem {
+	padding: 1.25rem;
+	margin-top: 1.5rem;
+	text-align: center;
+	cursor: pointer;
+}
+
+.mensagem h1 {
+	font-size: 1.1rem;
+	margin: 0;
+	color: #fff;
+}
+
+.mensagem.disabled {
+	pointer-events: none;
+	opacity: 0.7;
+}
+
+.mensagem.esconder {
+	display: none;
+}
+
+/* Resumo do pedido */
+
+.output {
+	margin-top: 2rem;
+	padding: 1.5rem;
+}
+
+.output p {
+	margin-bottom: 0.6rem;
+}
+
+/* Cards do cardápio */
+
+.cardapio-preco {
+	color: var(--orange);
+	font-size: 1.2rem;
+	font-weight: 800;
+	margin-top: 1rem;
+}
