@@ -420,3 +420,28 @@ select option {
 	font-weight: 800;
 	margin-top: 1rem;
 }
+
+/* Jogo da Sorte */
+
+.numero-sorte {
+	text-align: center;
+	font-size: 1.1rem;
+	font-weight: 700;
+}
+
+#sorteioForm {
+	margin-bottom: 2rem;
+}
+
+#resultado h3 {
+	color: #fff;
+	margin-bottom: 1rem;
+}
+
+#resultado strong {
+	color: var(--orange);
+}
+
+#resultado .button {
+	margin-top: 1rem;
+}
