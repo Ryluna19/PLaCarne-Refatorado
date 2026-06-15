@@ -95,7 +95,7 @@ document.getElementById("pedidoForm").addEventListener("submit", function (event
     const valorDesconto = calcularDesconto(descontoCodigo, totalPedido);
     const valorFinal = totalPedido - valorDesconto;
 
-    fetch("php/gravar_pedidos.php", {
+    fetch("php/salvar-pedidos.php", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

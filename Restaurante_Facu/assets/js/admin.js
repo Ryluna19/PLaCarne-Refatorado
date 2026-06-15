@@ -22,7 +22,7 @@ async function carregarPedidos() {
     container.innerHTML = "<p>Carregando pedidos...</p>";
 
     try {
-        const response = await fetch("php/carregar_pedidos.php");
+        const response = await fetch("php/listar-pedidos.php");
         const data = await response.json();
 
         if (!data.success) {
@@ -78,7 +78,7 @@ async function deletarPedido(id) {
     }
 
     try {
-        const response = await fetch(`php/deletar_pedidos.php?id=${id}`);
+        const response = await fetch(`php/listar-pedidos.php?id=${id}`);
         const data = await response.json();
 
         if (data.success) {
