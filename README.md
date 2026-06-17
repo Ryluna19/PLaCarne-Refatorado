@@ -152,4 +152,4 @@ Desenvolvido por Ryan Santos.
 
 * GitHub: https://github.com/Ryluna19
 * LinkedIn: https://www.linkedin.com/in/ryan-bulhoes-santos-560b25225/
-git 
+git
