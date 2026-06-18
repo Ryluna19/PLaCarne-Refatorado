@@ -250,6 +250,7 @@ async function atualizarStatus(id) {
     }
 }
 
+
 // Remove um pedido pelo ID
 async function deletarPedido(id) {
     const confirmar = confirm(`Deseja deletar o pedido #${id}?`);
@@ -259,8 +260,12 @@ async function deletarPedido(id) {
     }
 
     try {
-        const response = await fetch(`api/deletar-pedido.php?id=${id}`, {
-            cache: "no-store"
+        const response = await fetch("api/deletar-pedido.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ id })
         });
 
         if (!response.ok) {
@@ -282,6 +287,8 @@ async function deletarPedido(id) {
         alert("Não foi possível deletar o pedido.");
     }
 }
+
+
 
 // Carrega os pedidos ao abrir a página
 carregarPedidos();
