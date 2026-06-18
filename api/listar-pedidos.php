@@ -1,15 +1,19 @@
 <?php
+
 require_once __DIR__ . '/config.php';
 
+// Busca todos os pedidos registrados no banco
 $sql = "SELECT 
-            id, 
-            nome, 
-            telefone, 
-            email, 
-            pedidos, 
-            observacao, 
-            desconto, 
-            valor_final 
+            id,
+            nome,
+            telefone,
+            email,
+            pedidos,
+            observacao,
+            desconto,
+            valor_final,
+            status,
+            data_hora
         FROM pedidos
         ORDER BY id DESC";
 
@@ -36,4 +40,3 @@ jsonResponse([
     'success' => true,
     'pedidos' => $pedidos
 ]);
-?>

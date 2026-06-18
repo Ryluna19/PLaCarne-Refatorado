@@ -599,3 +599,83 @@ select option {
 		min-width: 0;
 	}
 }
+
+/* Status dos pedidos no Admin */
+
+#pedidosContainer .pedido-status {
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	margin-top: 0.55rem !important;
+	padding: 0.35rem 0.85rem !important;
+	background: rgba(255, 122, 0, 0.12) !important;
+	border: 1px solid rgba(255, 122, 0, 0.4) !important;
+	border-radius: 999px !important;
+	color: var(--orange) !important;
+	font-size: 0.82rem !important;
+	font-weight: 800 !important;
+	line-height: 1 !important;
+}
+
+#pedidosContainer .status-area {
+	margin-top: 1.5rem !important;
+	padding: 1rem !important;
+	background: #181818 !important;
+	border: 1px solid var(--border-soft) !important;
+	border-radius: 14px !important;
+}
+
+#pedidosContainer .status-area label {
+	display: block;
+	margin-bottom: 0.65rem !important;
+	color: var(--text-muted) !important;
+	font-size: 0.9rem !important;
+	font-weight: 700 !important;
+}
+
+#pedidosContainer .status-control {
+	display: flex !important;
+	align-items: center !important;
+	gap: 0.8rem !important;
+	width: 100% !important;
+}
+
+#pedidosContainer .status-select {
+	flex: 1 1 auto !important;
+	width: auto !important;
+	min-width: 0 !important;
+	height: 3rem !important;
+	margin: 0 !important;
+	padding: 0 1rem !important;
+}
+
+#pedidosContainer .status-button {
+	flex: 0 0 170px !important;
+	width: 170px !important;
+	min-width: 170px !important;
+	height: 3rem !important;
+	margin: 0 !important;
+	padding: 0 1rem !important;
+	background: var(--orange) !important;
+	color: #111111 !important;
+	font-size: 0.9rem !important;
+	font-weight: 800 !important;
+}
+
+#pedidosContainer .status-button:hover {
+	background: var(--orange-hover) !important;
+	color: #111111 !important;
+}
+
+@media screen and (max-width: 736px) {
+	#pedidosContainer .status-control {
+		flex-direction: column !important;
+		align-items: stretch !important;
+	}
+
+	#pedidosContainer .status-button {
+		flex: none !important;
+		width: 100% !important;
+		min-width: 0 !important;
+	}
+}

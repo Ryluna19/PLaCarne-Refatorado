@@ -1,4 +1,13 @@
-// Formata números como moeda brasileira
+// Status disponíveis para atualização do pedido
+const statusPermitidos = [
+    "Recebido",
+    "Em preparo",
+    "Saiu para entrega",
+    "Concluído",
+    "Cancelado"
+];
+
+// Formata valores como moeda brasileira
 function formatarMoeda(valor) {
     return Number(valor || 0).toLocaleString("pt-BR", {
         style: "currency",
@@ -6,28 +15,104 @@ function formatarMoeda(valor) {
     });
 }
 
-// Evita inserir texto do banco diretamente no HTML
-function limparTexto(texto) {
-    return String(texto || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+// Formata data e hora vindas do MySQL
+function formatarDataHora(valor) {
+    if (!valor) {
+        return "Não informado";
+    }
+
+    const [data, horaCompleta] = String(valor).split(" ");
+
+    if (!data || !horaCompleta) {
+        return valor;
+    }
+
+    const [ano, mes, dia] = data.split("-");
+    const hora = horaCompleta.slice(0, 5);
+
+    return `${dia}/${mes}/${ano} às ${hora}`;
 }
 
-// Carrega os pedidos salvos no banco
+// Evita que textos vindos do banco sejam interpretados como HTML
+function limparTexto(valor) {
+    const texto = String(valor ?? "");
+
+    return texto.replace(/[&<>"']/g, caractere => {
+        const caracteresSeguros = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        };
+
+        return caracteresSeguros[caractere];
+    });
+}
+
+// Exibe uma mensagem no container de pedidos
+function exibirMensagem(mensagem) {
+    const container = document.getElementById("pedidosContainer");
+    container.innerHTML = `<p>${mensagem}</p>`;
+}
+
+// Monta o select de status do pedido
+function montarSelectStatus(pedido) {
+    const options = statusPermitidos.map(status => {
+        const selecionado = status === pedido.status ? "selected" : "";
+
+        return `
+            <option value="${status}" ${selecionado}>
+                ${status}
+            </option>
+        `;
+    }).join("");
+
+    return `
+        <div class="status-area">
+            <label for="status-${pedido.id}">Status do pedido</label>
+
+            <div class="status-control">
+                <select id="status-${pedido.id}" class="status-select">
+                    ${options}
+                </select>
+
+                <button
+                    type="button"
+                    class="button small status-button"
+                    onclick="atualizarStatus(${pedido.id})"
+                >
+                    Salvar Status
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Carrega os pedidos registrados no banco
 async function carregarPedidos() {
     const container = document.getElementById("pedidosContainer");
-    container.innerHTML = "<p>Carregando pedidos...</p>";
+
+    exibirMensagem("Carregando pedidos...");
 
     try {
-        const response = await fetch("api/listar-pedidos.php");
+        const response = await fetch("api/listar-pedidos.php", {
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!data.success) {
-            container.innerHTML = "<p>Erro ao carregar pedidos.</p>";
+            exibirMensagem(data.message || "Erro ao carregar pedidos.");
             return;
+        }
+
+        if (!Array.isArray(data.pedidos)) {
+            throw new Error("A API não retornou uma lista de pedidos válida.");
         }
 
         if (data.pedidos.length === 0) {
@@ -41,31 +126,106 @@ async function carregarPedidos() {
         }
 
         container.innerHTML = data.pedidos.map(pedido => `
-            <div class="pedido-card">
+            <article class="pedido-card">
                 <div class="pedido-topo">
-                    <h3 class="pedido-id">Pedido #${pedido.id}</h3>
+                    <div>
+                        <h3 class="pedido-id">Pedido #${pedido.id}</h3>
+                        <span class="pedido-status ${limparTexto(pedido.status)}">
+                            ${limparTexto(pedido.status || "Recebido")}
+                        </span>
+                    </div>
 
-                    <button class="button small btn-danger" onclick="deletarPedido(${pedido.id})">
+                    <button
+                        type="button"
+                        class="button small btn-danger"
+                        onclick="deletarPedido(${pedido.id})"
+                    >
                         Deletar
                     </button>
                 </div>
 
-                <p class="pedido-info"><strong>Cliente:</strong> ${limparTexto(pedido.nome)}</p>
-                <p class="pedido-info"><strong>Telefone:</strong> ${limparTexto(pedido.telefone)}</p>
-                <p class="pedido-info"><strong>Email:</strong> ${limparTexto(pedido.email)}</p>
-                <p class="pedido-info"><strong>Pedido:</strong> ${limparTexto(pedido.pedidos || "Não informado")}</p>
-                <p class="pedido-info"><strong>Observação:</strong> ${limparTexto(pedido.observacao || "Nenhuma")}</p>
-                <p class="pedido-info"><strong>Desconto:</strong> ${formatarMoeda(pedido.desconto)}</p>
+                <p class="pedido-info">
+                    <strong>Cliente:</strong> ${limparTexto(pedido.nome)}
+                </p>
+
+                <p class="pedido-info">
+                    <strong>Telefone:</strong> ${limparTexto(pedido.telefone)}
+                </p>
+
+                <p class="pedido-info">
+                    <strong>Email:</strong> ${limparTexto(pedido.email)}
+                </p>
+
+                <p class="pedido-info">
+                    <strong>Pedido:</strong> ${limparTexto(pedido.pedidos || "Não informado")}
+                </p>
+
+                <p class="pedido-info">
+                    <strong>Observação:</strong> ${limparTexto(pedido.observacao || "Nenhuma")}
+                </p>
+
+                <p class="pedido-info">
+                    <strong>Realizado em:</strong> ${limparTexto(formatarDataHora(pedido.data_hora))}
+                </p>
+
+                <p class="pedido-info">
+                    <strong>Desconto:</strong> ${formatarMoeda(pedido.desconto)}
+                </p>
 
                 <p class="pedido-total">
                     Total: ${formatarMoeda(pedido.valor_final)}
                 </p>
-            </div>
+
+                ${montarSelectStatus(pedido)}
+            </article>
         `).join("");
 
     } catch (error) {
-        console.error(error);
-        container.innerHTML = "<p>Erro ao conectar com o servidor.</p>";
+        console.error("Erro ao carregar pedidos:", error);
+
+        container.innerHTML = `
+            <p>
+                Não foi possível exibir os pedidos. Abra o console do navegador
+                para verificar o erro detalhado.
+            </p>
+        `;
+    }
+}
+
+// Atualiza o status de um pedido
+async function atualizarStatus(id) {
+    const select = document.getElementById(`status-${id}`);
+    const status = select.value;
+
+    try {
+        const response = await fetch("api/atualizar-status.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id,
+                status
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+            alert(data.message || "Erro ao atualizar status.");
+            return;
+        }
+
+        alert("Status atualizado com sucesso!");
+        carregarPedidos();
+
+    } catch (error) {
+        console.error("Erro ao atualizar status:", error);
+        alert("Não foi possível atualizar o status.");
     }
 }
 
@@ -78,21 +238,29 @@ async function deletarPedido(id) {
     }
 
     try {
-        const response = await fetch(`api/listar-pedidos.php?id=${id}`);
+        const response = await fetch(`api/deletar-pedido.php?id=${id}`, {
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
         const data = await response.json();
 
-        if (data.success) {
-            alert("Pedido deletado com sucesso!");
-            carregarPedidos();
+        if (!data.success) {
+            alert(data.message || "Erro ao deletar pedido.");
             return;
         }
 
-        alert(data.message || "Erro ao deletar pedido.");
+        alert("Pedido deletado com sucesso!");
+        carregarPedidos();
 
     } catch (error) {
-        console.error(error);
-        alert("Erro ao deletar pedido.");
+        console.error("Erro ao deletar pedido:", error);
+        alert("Não foi possível deletar o pedido.");
     }
 }
 
+// Carrega os pedidos ao abrir a página
 carregarPedidos();
