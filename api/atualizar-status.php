@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/config.php';
+// atualizar-status.php
+validarMetodo('POST');
 
 // Lê os dados enviados pelo painel administrativo
 $dados = json_decode(file_get_contents('php://input'), true);

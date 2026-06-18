@@ -2,6 +2,9 @@
 
 require_once __DIR__ . '/config.php';
 
+// listar-pedidos.php
+validarMetodo('GET');
+
 // Busca todos os pedidos registrados no banco
 $sql = "SELECT 
             id,

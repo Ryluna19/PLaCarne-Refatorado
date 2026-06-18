@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/config.php';
+// salvar-pedido.php
+validarMetodo('POST');
 
 // Lê os dados enviados pelo formulário
 $dados = json_decode(file_get_contents('php://input'), true);

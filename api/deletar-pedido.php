@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/config.php';
+// Permite exclusão apenas por requisição POST
+validarMetodo('POST');
 
 // Lê os dados enviados pelo painel administrativo
 $dados = json_decode(file_get_contents('php://input'), true);
