@@ -15,7 +15,7 @@ function formatarMoeda(valor) {
     });
 }
 
-// Formata data e hora vindas do MySQL
+// Formata a data e hora recebidas do MySQL
 function formatarDataHora(valor) {
     if (!valor) {
         return "Não informado";
@@ -31,6 +31,19 @@ function formatarDataHora(valor) {
     const hora = horaCompleta.slice(0, 5);
 
     return `${dia}/${mes}/${ano} às ${hora}`;
+}
+
+// Retorna uma classe CSS específica para cada status
+function obterClasseStatus(status) {
+    const classes = {
+        "Recebido": "status-recebido",
+        "Em preparo": "status-em-preparo",
+        "Saiu para entrega": "status-em-entrega",
+        "Concluído": "status-concluido",
+        "Cancelado": "status-cancelado"
+    };
+
+    return classes[status] || "status-recebido";
 }
 
 // Evita que textos vindos do banco sejam interpretados como HTML
@@ -56,10 +69,12 @@ function exibirMensagem(mensagem) {
     container.innerHTML = `<p>${mensagem}</p>`;
 }
 
-// Monta o select de status do pedido
+// Monta o select de status de cada pedido
 function montarSelectStatus(pedido) {
+    const statusAtual = pedido.status || "Recebido";
+
     const options = statusPermitidos.map(status => {
-        const selecionado = status === pedido.status ? "selected" : "";
+        const selecionado = status === statusAtual ? "selected" : "";
 
         return `
             <option value="${status}" ${selecionado}>
@@ -125,60 +140,66 @@ async function carregarPedidos() {
             return;
         }
 
-        container.innerHTML = data.pedidos.map(pedido => `
-            <article class="pedido-card">
-                <div class="pedido-topo">
-                    <div>
-                        <h3 class="pedido-id">Pedido #${pedido.id}</h3>
-                        <span class="pedido-status ${limparTexto(pedido.status)}">
-                            ${limparTexto(pedido.status || "Recebido")}
-                        </span>
+        container.innerHTML = data.pedidos.map(pedido => {
+            const statusAtual = pedido.status || "Recebido";
+            const classeStatus = obterClasseStatus(statusAtual);
+
+            return `
+                <article class="pedido-card">
+                    <div class="pedido-topo">
+                        <div>
+                            <h3 class="pedido-id">Pedido #${pedido.id}</h3>
+
+                            <span class="pedido-status ${classeStatus}">
+                                ${limparTexto(statusAtual)}
+                            </span>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="button small btn-danger"
+                            onclick="deletarPedido(${pedido.id})"
+                        >
+                            Deletar
+                        </button>
                     </div>
 
-                    <button
-                        type="button"
-                        class="button small btn-danger"
-                        onclick="deletarPedido(${pedido.id})"
-                    >
-                        Deletar
-                    </button>
-                </div>
+                    <p class="pedido-info">
+                        <strong>Cliente:</strong> ${limparTexto(pedido.nome)}
+                    </p>
 
-                <p class="pedido-info">
-                    <strong>Cliente:</strong> ${limparTexto(pedido.nome)}
-                </p>
+                    <p class="pedido-info">
+                        <strong>Telefone:</strong> ${limparTexto(pedido.telefone)}
+                    </p>
 
-                <p class="pedido-info">
-                    <strong>Telefone:</strong> ${limparTexto(pedido.telefone)}
-                </p>
+                    <p class="pedido-info">
+                        <strong>Email:</strong> ${limparTexto(pedido.email)}
+                    </p>
 
-                <p class="pedido-info">
-                    <strong>Email:</strong> ${limparTexto(pedido.email)}
-                </p>
+                    <p class="pedido-info">
+                        <strong>Pedido:</strong> ${limparTexto(pedido.pedidos || "Não informado")}
+                    </p>
 
-                <p class="pedido-info">
-                    <strong>Pedido:</strong> ${limparTexto(pedido.pedidos || "Não informado")}
-                </p>
+                    <p class="pedido-info">
+                        <strong>Observação:</strong> ${limparTexto(pedido.observacao || "Nenhuma")}
+                    </p>
 
-                <p class="pedido-info">
-                    <strong>Observação:</strong> ${limparTexto(pedido.observacao || "Nenhuma")}
-                </p>
+                    <p class="pedido-info">
+                        <strong>Realizado em:</strong> ${formatarDataHora(pedido.data_hora)}
+                    </p>
 
-                <p class="pedido-info">
-                    <strong>Realizado em:</strong> ${limparTexto(formatarDataHora(pedido.data_hora))}
-                </p>
+                    <p class="pedido-info">
+                        <strong>Desconto:</strong> ${formatarMoeda(pedido.desconto)}
+                    </p>
 
-                <p class="pedido-info">
-                    <strong>Desconto:</strong> ${formatarMoeda(pedido.desconto)}
-                </p>
+                    <p class="pedido-total">
+                        Total: ${formatarMoeda(pedido.valor_final)}
+                    </p>
 
-                <p class="pedido-total">
-                    Total: ${formatarMoeda(pedido.valor_final)}
-                </p>
-
-                ${montarSelectStatus(pedido)}
-            </article>
-        `).join("");
+                    ${montarSelectStatus(pedido)}
+                </article>
+            `;
+        }).join("");
 
     } catch (error) {
         console.error("Erro ao carregar pedidos:", error);
@@ -264,3 +285,4 @@ async function deletarPedido(id) {
 
 // Carrega os pedidos ao abrir a página
 carregarPedidos();
+

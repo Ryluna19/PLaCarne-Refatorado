@@ -1,9 +1,11 @@
 <?php
+
 require_once __DIR__ . '/config.php';
 
+// Lê os dados enviados pelo formulário
 $dados = json_decode(file_get_contents('php://input'), true);
 
-if (!$dados) {
+if (!is_array($dados)) {
     jsonResponse([
         'success' => false,
         'message' => 'Dados inválidos.'
@@ -13,42 +15,87 @@ if (!$dados) {
 $nome = trim($dados['nome'] ?? '');
 $telefone = trim($dados['telefone'] ?? '');
 $email = trim($dados['email'] ?? '');
-$pedidosArray = $dados['pedidos'] ?? [];
+$pedidosRecebidos = $dados['pedidos'] ?? [];
 $observacao = trim($dados['observacao'] ?? '');
-$valorDesconto = floatval($dados['valorDesconto'] ?? 0);
-$valorFinal = floatval($dados['valorFinal'] ?? 0);
+$codigoDesconto = trim($dados['codigoDesconto'] ?? '');
 
-if ($nome === '' || $telefone === '' || $email === '' || empty($pedidosArray)) {
+// Produtos e preços definidos no backend
+$produtosDisponiveis = [
+    'La Carne Atômico' => 50.00,
+    'Triplo Cheddar' => 40.00,
+    'Clássico Angus' => 30.00,
+    'Duplo da Casa' => 25.00
+];
+
+// Cupons válidos do Jogo da Sorte
+$cuponsDisponiveis = [
+    '5555' => 5,
+    '1010' => 10,
+    '1515' => 15,
+    '2020' => 20,
+    '2525' => 25,
+    '3030' => 30
+];
+
+if ($nome === '' || $telefone === '' || $email === '' || empty($pedidosRecebidos)) {
     jsonResponse([
         'success' => false,
         'message' => 'Preencha nome, telefone, email e pelo menos um pedido.'
     ]);
 }
 
-if (!is_array($pedidosArray)) {
+if (!is_array($pedidosRecebidos)) {
     jsonResponse([
         'success' => false,
         'message' => 'Formato de pedidos inválido.'
     ]);
 }
 
-$pedidos = implode(', ', $pedidosArray);
+// Confere os produtos e calcula o total pelo backend
+$totalPedido = 0;
+$pedidosValidos = [];
 
-$sql = "INSERT INTO pedidos 
-        (nome, telefone, email, pedidos, observacao, desconto, valor_final) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)";
+foreach ($pedidosRecebidos as $pedido) {
+    if (!array_key_exists($pedido, $produtosDisponiveis)) {
+        jsonResponse([
+            'success' => false,
+            'message' => 'Um dos produtos selecionados é inválido.'
+        ]);
+    }
+
+    $pedidosValidos[] = $pedido;
+    $totalPedido += $produtosDisponiveis[$pedido];
+}
+
+// Aplica desconto somente para cupons reconhecidos
+$percentualDesconto = $cuponsDisponiveis[$codigoDesconto] ?? 0;
+$valorDesconto = $totalPedido * ($percentualDesconto / 100);
+$valorFinal = $totalPedido - $valorDesconto;
+
+$pedidos = implode(', ', $pedidosValidos);
+
+$sql = "INSERT INTO pedidos (
+            nome,
+            telefone,
+            email,
+            pedidos,
+            observacao,
+            desconto,
+            valor_final,
+            status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, 'Recebido')";
 
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
     jsonResponse([
         'success' => false,
-        'message' => 'Erro ao preparar consulta.'
+        'message' => 'Erro ao preparar pedido.'
     ]);
 }
 
 $stmt->bind_param(
-    "sssssdd",
+    'sssssdd',
     $nome,
     $telefone,
     $email,
@@ -58,15 +105,18 @@ $stmt->bind_param(
     $valorFinal
 );
 
-if ($stmt->execute()) {
+if (!$stmt->execute()) {
     jsonResponse([
-        'success' => true,
-        'message' => 'Pedido gravado com sucesso.'
+        'success' => false,
+        'message' => 'Erro ao salvar pedido.'
     ]);
 }
 
+// Retorna os valores calculados pelo servidor
 jsonResponse([
-    'success' => false,
-    'message' => 'Erro ao gravar pedido.'
+    'success' => true,
+    'message' => 'Pedido registrado com sucesso.',
+    'valorDesconto' => $valorDesconto,
+    'valorFinal' => $valorFinal,
+    'status' => 'Recebido'
 ]);
-?>

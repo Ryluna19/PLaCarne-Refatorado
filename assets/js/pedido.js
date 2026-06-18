@@ -106,8 +106,7 @@ document.getElementById("pedidoForm").addEventListener("submit", function (event
             email,
             pedidos,
             observacao,
-            valorDesconto,
-            valorFinal,
+            codigoDesconto: descontoCodigo,
         }),
     })
         .then(response => response.json())
